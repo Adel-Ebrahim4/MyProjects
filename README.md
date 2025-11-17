@@ -1,0 +1,2 @@
+# MyProjects
+training Git course
