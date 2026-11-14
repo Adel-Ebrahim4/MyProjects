@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>أصدقاء عمر.. نسمع ونشجع</title>
+<style>
+:root{--pink:#f8e6f1;--purple:#9b3d72;--ink:#352632;--green:#dff3e7;--red:#fde4e4;--cream:#fffafd}
+*{box-sizing:border-box}
+body{margin:0;background:linear-gradient(145deg,#fff7fb,#f5e9fa);font-family:Tahoma,Arial,sans-serif;color:var(--ink);padding:20px}
+main{max-width:760px;margin:auto}
+header,.panel{background:#fff;border:1px solid #f0dce9;border-radius:26px;padding:24px;margin:18px 0;box-shadow:0 8px 24px #8c527015}
+header{text-align:center;background:linear-gradient(135deg,#fce8f3,#f2e8ff)}
+h1{color:var(--purple);font-size:clamp(25px,5vw,38px);margin:10px 0}
+.subtitle{color:#806b7a;line-height:1.8}
+.progress{height:10px;background:#eee6ed;border-radius:20px;overflow:hidden;margin:18px 0 8px}
+#bar{height:100%;width:0;background:#b64e88;transition:.3s}
+.counter{color:#8b7182;font-size:14px}
+.panel h2{font-size:23px;color:var(--purple);margin-top:0}
+.question{font-size:22px;line-height:1.8;font-weight:bold;margin:18px 0}
+.options{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+button{font:inherit;cursor:pointer;border:0;border-radius:17px;padding:16px 12px;font-weight:bold;transition:.15s}
+.option{background:#f7f0f6;color:var(--ink);font-size:18px;border:2px solid transparent}
+.option:hover{border-color:#d9a5c2}
+.option:disabled{cursor:default;opacity:1}
+.option.correct{background:var(--green);border-color:#78bd92}
+.option.wrong{background:var(--red);border-color:#e49a9a}
+.feedback{min-height:54px;margin-top:16px;padding:14px;border-radius:15px;background:#f8f2f7;line-height:1.7}
+.next{background:var(--purple);color:white;margin-top:14px;width:100%;font-size:18px}
+.next:disabled{opacity:.4;cursor:default}
+.small{font-size:14px;color:#8a7785}
+@media(max-width:520px){body{padding:10px}.panel,header{padding:18px}.options{grid-template-columns:1fr}.question{font-size:20px}}
+</style>
+</head>
+<body>
+<main>
+<header>
+<div style="font-size:36px">🌷 📚 🌷</div>
+<h1>أصدقاء عمر.. نسمع ونشجع</h1>
+<div class="subtitle">أنشطة تفاعلية عن قصة عمر والتأتأة ❤️<br>نسمع أصحابنا، ونحترم اختلافهم، ونشجعهم.</div>
+<div class="progress"><div id="bar"></div></div>
+<div class="counter" id="counter">النشاط 1 من 4</div>
+</header>
+<section class="panel" id="game">
+<h2 id="type">النشاط الأول: اختار التصرف الصحيح</h2>
+<div class="question" id="question"></div>
+<div class="options" id="options"></div>
+<div class="feedback" id="feedback">اختار إجابتك بالضغط على الزر 😊</div>
+<button class="next" id="next" disabled>النشاط التالي ←</button>
+</section>
+<p class="small" style="text-align:center">🌟 تذكّر: كل طفل يستحق أن نستمع إليه ونشجعه.</p>
+</main>
+<script>
+const activities=[
+{type:"النشاط الأول: اختار التصرف الصحيح",q:"عمر بيتكلم وبيكرر بعض الكلمات. نعمل إيه؟",opts:["نضحك عليه","نسمعه ونستناه يكمّل","نقاطعه ونتكلم بداله","نبعد عنه"],a:1,ok:"أحسنت! نسمع عمر بهدوء ونمنحه الوقت الكافي."},
+{type:"النشاط الثاني: كمّل الجملة",q:"الصديق الحقيقي هو اللي ______ صاحبه.",opts:["يسخر من","يشجع","يقاطع","يتجاهل"],a:1,ok:"رائع! الصديق الحقيقي يشجع صاحبه ويسانده."},
+{type:"النشاط الثالث: رتّب الفكرة",q:"مريم تريد أن تساعد عمر. ما أول تصرف مناسب؟",opts:["تضحك مع الآخرين","تطلب منه ألا يتكلم","تقترب منه وتستمع له باهتمام","تتركه وحده"],a:2,ok:"إجابة صحيحة! الاقتراب بلطف والاستماع باهتمام يساعدان عمر على الشعور بالأمان."},
+{type:"النشاط الرابع: موقف وفكّر",q:"صديقك يحتاج وقتًا أطول ليعبّر عن فكرته. ماذا تقول له؟",opts:["اتكلم بسرعة!","مش فاهمك، اسكت","خد وقتك، أنا سامعك","هضحك لما تخلص"],a:2,ok:"ممتاز! كلمات التشجيع والاحترام تجعل صديقنا يشعر بالقبول."}
+];
+let index=0,score=0,answered=false;
+const typeEl=document.getElementById("type"),qEl=document.getElementById("question"),optsEl=document.getElementById("options"),fb=document.getElementById("feedback"),next=document.getElementById("next");
+function render(){
+ const item=activities[index];answered=false;
+ typeEl.textContent=item.type;qEl.textContent=item.q;optsEl.innerHTML="";
+ fb.textContent="اختار إجابتك بالضغط على الزر 😊";next.disabled=true;
+ item.opts.forEach((opt,i)=>{const b=document.createElement("button");b.className="option";b.textContent=opt;b.onclick=()=>choose(i);optsEl.appendChild(b)});
+ document.getElementById("counter").textContent=`النشاط ${index+1} من ${activities.length}`;
+ document.getElementById("bar").style.width=`${index/activities.length*100}%`;
+ next.textContent=index===activities.length-1?"عرض النتيجة ⭐":"النشاط التالي ←";
+}
+function choose(i){
+ if(answered)return;answered=true;
+ const item=activities[index],buttons=[...optsEl.children];
+ buttons.forEach((b,j)=>{b.disabled=true;if(j===item.a)b.classList.add("correct");else if(j===i)b.classList.add("wrong")});
+ if(i===item.a){score++;fb.textContent="✅ "+item.ok}else{fb.textContent="💛 حاول مرة أخرى في المرة القادمة. الإجابة الصحيحة: "+item.opts[item.a]}
+ next.disabled=false;
+}
+next.onclick=()=>{
+ if(index<activities.length-1){index++;render()}
+ else{
+ document.getElementById("bar").style.width="100%";
+ typeEl.textContent="أحسنت يا بطل! 🎉";
+ qEl.textContent=`نتيجتك: ${score} من ${activities.length}`;
+ optsEl.innerHTML="";
+ fb.textContent=score===4?"رائع جدًا! أنت صديق يسمع ويشجع ويحترم الآخرين.":"شكرًا لمشاركتك! راجع الإجابات وتذكّر دائمًا أن نسمع أصحابنا ونشجعهم.";
+ next.textContent="إعادة الأنشطة ↻";next.disabled=false;next.onclick=()=>{index=0;score=0;next.onclick=advance;render()};
+ }
+};
+function advance(){if(index<activities.length-1){index++;render()}else{next.onclick();}}
+render();
+</script>
+</body>
+</html>
